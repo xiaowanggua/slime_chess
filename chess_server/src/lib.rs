@@ -125,7 +125,6 @@ impl Map{
         self.boom(x,y,player_index);
         true
     }
-    
     pub fn boom(&mut self,x:usize,y:usize,player_index:i32){
         let chunk: &mut Chunk = &mut self.map_data[x][y];
         if chunk.is_full(){
