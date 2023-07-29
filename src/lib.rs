@@ -3,18 +3,12 @@ use std::usize;
 
 #[derive(Debug)]
 pub struct Chunk{
-    pub pos : (i32,i32),
-    pub types : i32,
-    pub point_count : usize,
     pub points : [i32;4]
 }
 
 impl Chunk{
-    pub fn new(pos:(i32,i32),types:i32,point_count:usize)->Self{
+    pub fn new(types:i32,point_count:usize)->Self{
         Chunk{
-            pos,
-            types,
-            point_count,
             points :{
                 let mut temp = [-1,-1,-1,-1];
                 for i in types..=(point_count as i32 + types - 1){
@@ -80,6 +74,7 @@ impl Chunk{
             return "■".black();
         }
     }
+
 }
 
 #[derive(Debug)]
@@ -96,23 +91,23 @@ impl Map{
             let mut temp:Vec<Chunk> = Vec::new();
             for  j in 0..scale{
                 if i == 0 && j==0{
-                    temp.push(Chunk::new((i,j),1,2));
+                    temp.push(Chunk::new(1,2));
                 }else if i == 0 && j == scale-1{
-                    temp.push(Chunk::new((i,j),2,2));
+                    temp.push(Chunk::new(2,2));
                 }else if j == scale-1 && i == scale-1{
-                    temp.push(Chunk::new((i,j),3,2));
+                    temp.push(Chunk::new(3,2));
                 }else if j == 0 && i == scale-1{
-                    temp.push(Chunk::new((i,j),0,2));
+                    temp.push(Chunk::new(0,2));
                 }else if i == 0{
-                    temp.push(Chunk::new((i,j),1,3));
+                    temp.push(Chunk::new(1,3));
                 }else if i == scale-1{
-                    temp.push(Chunk::new((i,j),3,3));
+                    temp.push(Chunk::new(3,3));
                 }else if j == 0{
-                    temp.push(Chunk::new((i,j),0,3));
+                    temp.push(Chunk::new(0,3));
                 }else if j == scale-1{
-                    temp.push(Chunk::new((i,j),2,3));
+                    temp.push(Chunk::new(2,3));
                 }else{
-                    temp.push(Chunk::new((i,j),0,4));
+                    temp.push(Chunk::new(0,4));
                 }
             }
             map_data.push(temp);

@@ -16,7 +16,7 @@ fn main() {
     let mut player_count = String::new();
     stdin.read_line(&mut player_count).unwrap();
     let player_count:i32 = player_count.trim().parse::<i32>().expect("请输入数字");
-
+    
     loop{
         for i in 1..(player_count+1){
             term.clear_screen().unwrap();
