@@ -128,6 +128,9 @@ impl Map{
         }
     }
     pub fn place(&mut self,x:usize,y:usize,position:usize,player_index:i32)->bool{
+        if x as i32 > self.scale -1 || y as i32 > self.scale - 1{
+            return false;
+        }
         let chunk: &mut Chunk = &mut self.map_data[x][y];
         if chunk.place(player_index,position) == 0{
             return false;

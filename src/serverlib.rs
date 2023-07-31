@@ -9,19 +9,20 @@ pub fn handle_client(mut stream: TcpStream,tx:Sender<CMD>,rx:Receiver<CMD>,index
     stream.write(&CMD::new(0,4,index.to_string()).to_string().as_bytes())?;//发送玩家初始化数据
     stream.write("\n".as_bytes())?;
     loop {
+        println!("{index},3running");
         if let Ok(cmd) = rx.recv(){//信息发送
+            println!("Sended Message {:?}.",cmd);
             stream.write(&cmd.to_string().as_bytes())?;
             stream.write("\n".as_bytes())?;
-            if cmd.types == -1{
-                return  Ok(());
-            }
+            thread::sleep(time::Duration::from_secs(1));
         }
+        println!("{index},1running");
         let mut reader = BufReader::new(&stream);
-        if let Ok(bytes_read) = reader.read_until(b'\n',&mut buf){//信息接收
+        if let Ok(_) = reader.read_until(b'\n',&mut buf){//信息接收
+            println!("Received Message.");
             tx.send(serde_json::from_str(str::from_utf8(&buf).unwrap()).unwrap()).unwrap();
-            if bytes_read == 0 {
-                return Ok(());
-            }
+            buf = Vec::new();
         }
+        println!("{index},2running");
     }
 }

@@ -26,7 +26,7 @@ fn main(){
     listener.set_nonblocking(true).unwrap();
 
     let mut ifstartonce = true;
-    let mut player_now = 0;
+    let mut player_now = 1;
     let mut if_next_player = false;
     loop{
         if player_count <= connected_count{
@@ -38,6 +38,7 @@ fn main(){
                     i.send(cmd1.clone()).unwrap();
                     i.send(cmd2.clone()).unwrap();
                 }
+                if_next_player = true;
                 ifstartonce = false;
             }
             if if_next_player{
@@ -50,6 +51,7 @@ fn main(){
                 if_next_player = false;
             }
             if let Ok(p_cmd) = rx.recv(){
+                println!("message from {} received",p_cmd.who);
                 let (x,y,position) = serde_json::from_str(&p_cmd.content).unwrap();
                 map.place(x, y, position, p_cmd.who);
                 player_now+=1;
