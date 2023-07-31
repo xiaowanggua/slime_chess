@@ -50,7 +50,7 @@ fn main(){
                 }
                 if_next_player = false;
             }
-            if let Ok(p_cmd) = rx.recv(){
+            if let Ok(p_cmd) = rx.try_recv(){
                 println!("message from {} received",p_cmd.who);
                 let (x,y,position) = serde_json::from_str(&p_cmd.content).unwrap();
                 map.place(x, y, position, p_cmd.who);

@@ -37,7 +37,7 @@ fn main(){
                 }else{
                     if map.place(inputs[0],inputs[1], inputs[2],player_index){
                         println!("下棋成功！");
-                        stream.write(CMD::new(player_index,3,serde_json::to_string(&(inputs[0],inputs[1],inputs[2].to_string())).unwrap()).to_string().as_bytes()).unwrap();
+                        stream.write(CMD::new(player_index,3,serde_json::to_string(&(inputs[0],inputs[1],inputs[2])).unwrap()).to_string().as_bytes()).unwrap();
                         stream.write("\n".as_bytes()).unwrap();
                         if_player = false;
                         break;
@@ -50,7 +50,7 @@ fn main(){
         let mut reader = BufReader::new(&stream);
         if let Ok(bytes_read) = reader.read_until(b'\n',&mut buf){
             let cmd: CMD = serde_json::from_str(str::from_utf8(&buf).unwrap()).unwrap();
-            println!("cmd:{:?}",cmd);
+            //println!("cmd:{:?}",cmd);
             if cmd.types == 0{
                 println!("全部玩家已到齐游戏开始！");
             }else if cmd.types == 1{
