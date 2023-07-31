@@ -1,8 +1,7 @@
+use std::sync::mpsc::{self,Sender};
 use std::{net::TcpListener,io};
 use std::thread;
 use slime_chess::*;
-use slime_chess::serverlib::*;
-
 #[warn(unused_variables)]
 fn main(){
     let stdin: io::Stdin = io::stdin();
@@ -19,15 +18,59 @@ fn main(){
     let player_count:i32 = player_count.trim().parse::<i32>().expect("请输入数字");
 
     //server init
-    let listener = TcpListener::bind("0.0.0.0:20000").unwrap();
+    let listener = TcpListener::bind("127.0.0.1:20000").unwrap();
     let mut threads:Vec<thread::JoinHandle<()>> = Vec::new();
-    let mut connect_count: i32 = 0;
-    for i in listener.incoming(){
-        let s = i.unwrap();
-        threads.push(thread::spawn(move ||{
-            serverlib::handle_client(s).unwrap();
-        }))
-    }
+    let mut rxv:Vec<Sender<CMD>> = Vec::new();//服务端命令发送器vec
+    let mut connected_count: i32 = 0; //连接数量
+    let (tx,rx) = mpsc::channel::<CMD>();//服务端命令接受器
+    listener.set_nonblocking(true).unwrap();
 
+    let mut ifstartonce = true;
+    let mut player_now = 0;
+    let mut if_next_player = false;
+    loop{
+        if player_count <= connected_count{
+            if ifstartonce{
+                println!("Game start");
+                let cmd1 = CMD::new(0,0,String::from(""));//发送开始命令
+                let cmd2 = CMD::map_cmd(&map);//发送开始地图初始化
+                for i in &rxv{
+                    i.send(cmd1.clone()).unwrap();
+                    i.send(cmd2.clone()).unwrap();
+                }
+                ifstartonce = false;
+            }
+            if if_next_player{
+                for i in&rxv{
+                    let cmd1 = CMD::map_cmd(&map); //地图更新
+                    let cmd2 = CMD::new(0,1,player_now.to_string()); //发送下棋要求
+                    i.send(cmd1.clone()).unwrap();
+                    i.send(cmd2.clone()).unwrap();
+                }
+                if_next_player = false;
+            }
+            if let Ok(p_cmd) = rx.recv(){
+                let (x,y,position) = serde_json::from_str(&p_cmd.content).unwrap();
+                map.place(x, y, position, p_cmd.who);
+                player_now+=1;
+                if_next_player = true;
+            }
+            if player_now > player_count{
+                player_now = 1;
+            }
+        }else{
+            let listens = listener.accept();
+            if let Ok((s,_)) = listens{
+                connected_count+=1;
+                let ntx = tx.clone();
+                let (ttx,rrx) = mpsc::channel::<CMD>();//客户端线程命令发送器
+                rxv.push(ttx);
+                threads.push(thread::spawn(move ||{
+                    serverlib::handle_client(s,ntx,rrx,connected_count).unwrap();
+                }));
+                println!("Player Count now:{connected_count}");
+            }
+        }
+    }
 }
 

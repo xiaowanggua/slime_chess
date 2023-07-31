@@ -227,3 +227,36 @@ pub fn get_player_color(index:i32)->ColoredString{
     }
 
 }
+
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct CMD{
+    pub who:i32,// 0为服务端
+    pub types:i32,
+    /*
+    -1游戏结束
+    0开始游戏
+    1为服务端发送下棋要求
+    2为地图内容
+    3为客户端下棋内容
+    4为服务端发送客户端信息
+     */
+    pub content:String
+}
+impl CMD {
+    pub fn new(who:i32,types:i32,content:String)->Self{
+        CMD{
+            who,types,content
+        }
+    }
+    pub fn map_cmd(content:&Map)->Self{
+        CMD{
+            who:0,
+            types:2,
+            content: serde_json::to_string(content).unwrap()
+        }
+    }
+    pub fn to_string(&self)->String{
+        serde_json::to_string(&self).unwrap()
+    }
+}
