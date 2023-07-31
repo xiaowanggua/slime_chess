@@ -1,6 +1,6 @@
 use std::sync::mpsc::{self,Sender};
 use std::{net::TcpListener,io};
-use std::thread;
+use std::{thread, time};
 use slime_chess::*;
 #[warn(unused_variables)]
 fn main(){
@@ -28,8 +28,19 @@ fn main(){
     let mut ifstartonce = true;
     let mut player_now = 1;
     let mut if_next_player = false;
+    let mut play_count = 0;
+    let mut win = 0;
     loop{
         if player_count <= connected_count{
+            if win != 0{
+                let cmd1 = CMD::new(0,-1,win.to_string());
+                for i in &rxv{
+                    i.send(cmd1.clone()).unwrap();
+                }
+                println!("Game end.");
+                thread::sleep(time::Duration::from_secs(10));
+                break;
+            }
             if ifstartonce{
                 println!("Game start");
                 let cmd1 = CMD::new(0,0,String::from(""));//发送开始命令
@@ -55,6 +66,10 @@ fn main(){
                 let (x,y,position) = serde_json::from_str(&p_cmd.content).unwrap();
                 map.place(x, y, position, p_cmd.who);
                 player_now+=1;
+                play_count+=1;
+                if play_count >= player_count{
+                    win = map.check_win();
+                }
                 if_next_player = true;
             }
             if player_now > player_count{
@@ -74,5 +89,6 @@ fn main(){
             }
         }
     }
+    println!("Server end.");
 }
 

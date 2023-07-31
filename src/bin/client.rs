@@ -1,5 +1,5 @@
 use std::net::TcpStream;
-use std::io::{self, Read, BufReader, BufRead, Write};
+use std::io::{self, BufReader, BufRead, Write};
 use console::Term;
 use slime_chess::*;
 use std::str;
@@ -48,7 +48,7 @@ fn main(){
             }
         }
         let mut reader = BufReader::new(&stream);
-        if let Ok(bytes_read) = reader.read_until(b'\n',&mut buf){
+        if let Ok(_) = reader.read_until(b'\n',&mut buf){
             let cmd: CMD = serde_json::from_str(str::from_utf8(&buf).unwrap()).unwrap();
             //println!("cmd:{:?}",cmd);
             if cmd.types == 0{
@@ -72,6 +72,10 @@ fn main(){
                 println!("连接服务器成功");
                 println!("您的玩家id为:{player_index}");
                 println!("请等待所有玩家连接");
+            }else if cmd.types == -1{
+                println!("游戏结束！");
+                println!("玩家{}{}号胜利！",cmd.content,get_player_color(cmd.content.parse::<i32>().unwrap()));
+                break;
             }
             buf = Vec::new();
         }

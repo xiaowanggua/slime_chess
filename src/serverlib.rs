@@ -15,6 +15,9 @@ pub fn handle_client(mut stream: TcpStream,tx:Sender<CMD>,rx:Receiver<CMD>,index
             stream.write(&cmd.to_string().as_bytes())?;
             stream.write("\n".as_bytes())?;
             thread::sleep(time::Duration::from_secs(1)/2);
+            if cmd.types == -1{
+                break;
+            }
         }
         let mut reader = BufReader::new(&stream);
         if let Ok(_) = reader.read_until(b'\n',&mut buf){//信息接收
@@ -23,4 +26,5 @@ pub fn handle_client(mut stream: TcpStream,tx:Sender<CMD>,rx:Receiver<CMD>,index
             buf = Vec::new();
         }
     }
+    Ok(())
 }

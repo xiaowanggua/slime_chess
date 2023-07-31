@@ -172,9 +172,26 @@ impl Map{
             }
         }
     }
-    /*fn check_win(&self){
+    pub fn check_win(&self)->i32{
+        let mut temp: Vec<i32> = Vec::new();
+        for i in &self.map_data{
+            for j in i{
+                for k in j.points{
+                    if k!=0&&k!=-1{
+                        if !temp.contains(&k){
+                            temp.push(k);
+                        }
+                    }
+                }
+            }
+        }
+        if temp.len() == 1{
+            return temp[0];
+        }else{
+            0
+        }
 
-    }*/
+    }
 }
 
 
