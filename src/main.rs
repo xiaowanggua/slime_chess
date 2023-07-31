@@ -1,10 +1,11 @@
-use slime_chess::{Map, get_player_color};
+use slime_chess::*;
 use console::Term;
 use std::io;
 fn main() {
     colored::control::set_virtual_terminal(true).unwrap();
-    let stdin = io::stdin();
     let term = Term::stdout();
+
+    let stdin: io::Stdin = io::stdin();
 
     println!("请输入地图大小:");
     let mut scale = String::new();
@@ -16,7 +17,7 @@ fn main() {
     let mut player_count = String::new();
     stdin.read_line(&mut player_count).unwrap();
     let player_count:i32 = player_count.trim().parse::<i32>().expect("请输入数字");
-    
+
     loop{
         for i in 1..(player_count+1){
             term.clear_screen().unwrap();
@@ -31,7 +32,7 @@ fn main() {
                 for i in input{
                     inputs.push(i.parse::<usize>().unwrap());
                 }
-                if inputs.len() > 3{
+                if inputs.len() != 3{
                     println!("输入参数错误重新输入。")
                 }else{
                     if map.place(inputs[0],inputs[1], inputs[2],i) == true{
@@ -39,7 +40,6 @@ fn main() {
                     }else{
                         println!("此处不可下棋。");
                     }
-
                 }
             }
         }

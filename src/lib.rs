@@ -1,7 +1,12 @@
 use std::fmt::Display;
 use std::usize;
-
-#[derive(Debug)]
+use std::fmt;
+use colored::ColoredString;
+use colored::Colorize;
+use serde::Deserialize;
+use serde::Serialize;
+pub mod serverlib;
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Chunk{
     pub points : [i32;4]
 }
@@ -23,6 +28,11 @@ impl Chunk{
         }
     }
     pub fn place(&mut self,player_index:i32,position:usize)->i32{
+        for i in 0..3{
+            if self.points[i] > 0 && self.points[i] !=player_index{
+                return 0;
+            }
+        }
         if self.points[position] != 0{
             return 0;
         }
@@ -77,7 +87,7 @@ impl Chunk{
 
 }
 
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Map{
     pub scale : i32,
     pub map_data : Vec<Vec<Chunk>>,
@@ -125,7 +135,7 @@ impl Map{
         self.boom(x,y,player_index);
         true
     }
-    
+
     pub fn boom(&mut self,x:usize,y:usize,player_index:i32){
         let chunk: &mut Chunk = &mut self.map_data[x][y];
         if chunk.is_full(){
@@ -159,12 +169,12 @@ impl Map{
             }
         }
     }
+    /*fn check_win(&self){
+
+    }*/
 }
 
-use std::fmt;
 
-use colored::ColoredString;
-use colored::Colorize;
 impl Display for Map{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut temp = String::from(" ");
@@ -174,7 +184,7 @@ impl Display for Map{
         temp+="\n";
 
         for i in 0..self.scale{
-            for j in 0..self.scale{
+            for _ in 0..self.scale{
                 temp+="     ";
             }
             temp+="\n| ";
@@ -193,7 +203,7 @@ impl Display for Map{
                 temp+=&format!( " ■{}■ ",self.map_data[i as usize][j as usize].color_char(2));
             }
             temp+="\n|";
-            for j in 0..self.scale{
+            for _ in 0..self.scale{
                 temp+="     ";
             }
         }
