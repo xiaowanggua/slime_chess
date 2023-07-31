@@ -17,8 +17,15 @@ fn main(){
     stdin.read_line(&mut player_count).unwrap();
     let player_count:i32 = player_count.trim().parse::<i32>().expect("请输入数字");
 
+    println!("请输入端口:");
+    let mut port = String::new();
+    stdin.read_line(&mut port).unwrap();
+    let port = port.trim();
+
     //server init
-    let listener = TcpListener::bind("127.0.0.1:20000").unwrap();
+    let ip = String::from("0.0.0.0:")+port;
+    let listener = TcpListener::bind(&ip).unwrap();
+    println!("Server open on {}",ip);
     let mut threads:Vec<thread::JoinHandle<()>> = Vec::new();
     let mut rxv:Vec<Sender<CMD>> = Vec::new();//服务端命令发送器vec
     let mut connected_count: i32 = 0; //连接数量
@@ -33,9 +40,11 @@ fn main(){
     loop{
         if player_count <= connected_count{
             if win != 0{
-                let cmd1 = CMD::new(0,-1,win.to_string());
+                let cmd1 = CMD::map_cmd(&map);
+                let cmd2 = CMD::new(0,-1,win.to_string());
                 for i in &rxv{
                     i.send(cmd1.clone()).unwrap();
+                    i.send(cmd2.clone()).unwrap();
                 }
                 println!("Game end.");
                 thread::sleep(time::Duration::from_secs(10));
